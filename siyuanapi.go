@@ -3,7 +3,7 @@ package api
 import (
 	"errors"
 	"fmt"
-	log "github.com/sirupsen/logrus"
+	"github.com/imroc/req/v3"
 	"path"
 	"strings"
 )
@@ -14,7 +14,7 @@ type SiYuanApi struct {
 	client *req.Client
 }
 
-func NewSiYuanApi(token, url string) *SiYuanApi {
+func NewSiYuanApi(token, url string) (*SiYuanApi, error) {
 	a := &SiYuanApi{
 		token:  token,
 		url:    strings.TrimSuffix(url, "/"),
@@ -22,15 +22,14 @@ func NewSiYuanApi(token, url string) *SiYuanApi {
 	}
 	a.client.SetBaseURL(a.url)
 	a.client.SetCommonHeader("Authorization", fmt.Sprintf("token %s", a.token))
-	version, err := a.SystemVersion()
+	_, err := a.SystemVersion()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	log.Infof("SiYuanApi initialized, version %s", version)
-	return a
+	return a, nil
 }
 
-func NewSiYuanApiWithDefaultUrl(token string) *SiYuanApi {
+func NewSiYuanApiWithDefaultUrl(token string) (*SiYuanApi, error) {
 	return NewSiYuanApi(token, "http://127.0.0.1:6806")
 }
 
@@ -194,7 +193,6 @@ func (r SiYuanApi) BlockInsertBlock(dataType, data, previousId string) ([]Operat
 	if err != nil {
 		return nil, err
 	}
-	log.Debug(resp.String())
 	ret := responseBlockOperations{}
 	err = resp.Unmarshal(&ret)
 	if err != nil {
