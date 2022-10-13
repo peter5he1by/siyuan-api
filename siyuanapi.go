@@ -181,6 +181,31 @@ func (r SiYuanApi) AssetUpload(filepath string) (string, error) {
 	return res.Data.SuccMap[path.Base(filepath)], nil
 }
 
+// AssetUploadBytes 上传资源文件（数据来自内存）
+func (r SiYuanApi) AssetUploadBytes(data []byte, filename string) (string, error) {
+	resp, err := r.client.R().SetFormData(map[string]string{
+		"assetsDirPath": "/assets/",
+	}).SetFileBytes("file[]", filename, data).Post("/api/asset/upload")
+	if err != nil {
+		return "", err
+	}
+	res := struct {
+		Response
+		Data struct {
+			ErrFiles []string          `json:"errFiles"`
+			SuccMap  map[string]string `json:"succMap"`
+		} `json:"data"`
+	}{}
+	err = resp.Unmarshal(&res)
+	if err != nil {
+		return "", err
+	}
+	if len(res.Data.ErrFiles) > 0 {
+		return "", errors.New("upload failed")
+	}
+	return res.Data.SuccMap[filename], nil
+}
+
 // 块
 
 // BlockInsertBlock 插入块
