@@ -233,6 +233,9 @@ func (r SiYuanApi) BlockPrependBlock(dataType, data, parentId string) ([]Operati
 		"dataType": dataType,
 		"parentID": parentId,
 	})
+	if err != nil {
+		return nil, err
+	}
 	ret := responseBlockOperations{}
 	err = resp.Unmarshal(&ret)
 	if err != nil {
@@ -248,6 +251,9 @@ func (r SiYuanApi) BlockAppendBlock(dataType, data, parentId string) ([]Operatio
 		"dataType": dataType,
 		"parentID": parentId,
 	})
+	if err != nil {
+		return nil, err
+	}
 	ret := responseBlockOperations{}
 	err = resp.Unmarshal(&ret)
 	if err != nil {
@@ -258,7 +264,25 @@ func (r SiYuanApi) BlockAppendBlock(dataType, data, parentId string) ([]Operatio
 
 // 更新块
 // 删除块
-// 获取块kramdown源码
+
+// BlockGetBlockKramdown 获取块kramdown源码
+func (r SiYuanApi) BlockGetBlockKramdown(id string) (string, error) {
+	resp, err := r.jsonReq("/api/block/getBlockKramdown", map[string]string{
+		"id": id,
+	})
+	if err != nil {
+		return "", err
+	}
+	ret := struct {
+		id       string
+		kramdown string
+	}{}
+	err = resp.Unmarshal(&ret)
+	if err != nil {
+		return "", err
+	}
+	return ret.kramdown, nil
+}
 
 // 属性
 
