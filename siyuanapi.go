@@ -274,14 +274,17 @@ func (r SiYuanApi) BlockGetBlockKramdown(id string) (string, error) {
 		return "", err
 	}
 	ret := struct {
-		id       string
-		kramdown string
+		Response
+		Data struct {
+			Id       string `json:"id"`
+			Kramdown string `json:"kramdown"`
+		}
 	}{}
 	err = resp.Unmarshal(&ret)
 	if err != nil {
 		return "", err
 	}
-	return ret.kramdown, nil
+	return ret.Data.Kramdown, nil
 }
 
 // 属性
